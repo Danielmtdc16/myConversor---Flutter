@@ -8,6 +8,17 @@ const request = "https://api.hgbrasil.com/finance?key=1c8d7980";
 void main() async{
   runApp(MaterialApp(
     home: Home(),
+    theme: ThemeData(
+      hintColor: Colors.amber,
+      primaryColor: Colors.white,
+      inputDecorationTheme: InputDecorationTheme(
+        enabledBorder:
+          OutlineInputBorder(borderSide: BorderSide(color: Colors.white),),
+        focusedBorder:
+          OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+        hintStyle: TextStyle(color: Colors.amber),
+      ),
+    ),
   ));
 }
 
@@ -19,6 +30,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
+  void _realChanged(String text){
+    print(text);
+  }
+  void _dolarChanged(String text){
+    print(text);
+  }
+  void _euroChanged(String text){
+    print(text);
+  }
+
 
   late double dolar;
   late double euro;
@@ -38,7 +64,7 @@ class _HomeState extends State<Home> {
           switch(snapshot.connectionState){
             case ConnectionState.none:
             case ConnectionState.waiting:
-              return Center(
+              return const Center(
                 child: Text("Carregando Dados...",
                   style: TextStyle(
                       color: Colors.amber,
@@ -47,7 +73,7 @@ class _HomeState extends State<Home> {
               );
             default:
               if (snapshot.hasError){
-                return Center(
+                return  const Center(
                   child: Text("Erro ao Carregar Dados :(",
                       style: TextStyle(
                           color: Colors.amber,
@@ -59,21 +85,20 @@ class _HomeState extends State<Home> {
                 euro = snapshot.data!["results"]["currencies"]["EUR"]["buy"];
 
                 return SingleChildScrollView(
+                  padding: EdgeInsets.all(15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(Icons.monetization_on, size: 150, color: Colors.amber,),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: "Reais",
-                          labelStyle: TextStyle(color: Colors.amber),
-                          border: OutlineInputBorder(),
-                          prefixText: "R\$",
-                        ),
-                        style: TextStyle(
-                          color: Colors.white, fontSize: 25
-                        ),
-                      )
+                      const Icon(
+                          Icons.monetization_on,
+                          size: 150,
+                          color: Colors.amber
+                      ),
+                      buildTextField("Reais", "R\$", realController, _realChanged),
+                      const Divider(),
+                      buildTextField("Dólares", "U\$", dolarController, _dolarChanged),
+                      const Divider(),
+                      buildTextField("Euros", "E", euroController, _euroChanged),
                     ],
                   ),
                 );
@@ -82,6 +107,23 @@ class _HomeState extends State<Home> {
         })
     );
   }
+}
+
+Widget buildTextField(String label, String prefix, TextEditingController controller, Function(String) f){
+  return TextField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.amber),
+      border: OutlineInputBorder(),
+      prefixText: prefix,
+    ),
+    style: TextStyle(
+      color: Colors.white, fontSize: 20
+    ),
+    onChanged: f,
+    keyboardType: TextInputType.number,
+  );
 }
 
 Future<Map> getData() async {
